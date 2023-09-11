@@ -78,7 +78,7 @@
 		<!-- create the distribution directory -->
 		<mkdir dir="${dist}"/>
 		<!-- create the distribution jar -->
-		<jar jarfile="${dist}/nekomud-${DSTAMP}.jar">
+		<jar jarfile="${dist}/nekomud-r16.jar">
 			<!-- include all binary class files -->
 		    <fileset dir="${build}" excludes="log4j.properties"/>
 		</jar>
