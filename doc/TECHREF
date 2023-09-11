@@ -1,0 +1,17 @@
+TECHREF
+
+Freemarker 2.3
+* http://freemarker.org/
+
+JUnit 4.4
+* http://www.junit.org/
+ 
+log4j 1.2
+* http://logging.apache.org/log4j/1.2/manual.html
+
+slf4j-1.5
+* http://www.slf4j.org/manual.html
+
+Spring 2.5
+* Spring in Action, Second Edition by Craig Walls
+* http://static.springframework.org/spring/docs/2.5.x/reference/index.html

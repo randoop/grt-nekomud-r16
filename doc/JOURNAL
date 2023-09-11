@@ -1,0 +1,267 @@
+
+JOURNAL
+
+-c16
+This is probably the largest change-set since the beginning of the project.
+
+The main goal here was to get the Java NIO (New I/O) communication core
+put into the project. Now the program can listen for connections and will
+echo back whatever those connections provide to it. This isn't very useful
+yet, but it's a beginning for being able to communicate with MUD clients.
+
+There are so many other changes, I'll just go down the project in Eclipse
+and see what got added/changed:
+
+* Modifications
+
+1. Most existing classes had their header comments updated for the new
+   2008-2009 copyright message.
+
+2. MethodLogger had an incorrect filename at the top; this was corrected.
+   HelloNekoMUD was used to launch the network service; but this code was
+   commented out before checking it in so that the unit tests would pass.
+
+3. HelloNekoMUDTest got a "testAlwaysSucceed" case for detecting problems
+   with the test suite initialization.
+
+4. log4j.properties moved to a new conf/ folder that contains configuration
+   parameters. In Eclipse, it's a source folder that gets copied into the
+   classpath. I have not updated build.xml to match this behavior yet.
+
+5. This JOURNAL file was updated with the description of these changes.
+   (You are here)
+
+6. Added a link to Freemarker to the TECHREF document.
+
+* Additions
+
+1. Rolled back from JUnit 4.5 to JUnit 4.4; there was a conflict between
+   Spring's testing framework and JUnit 4.5, so until the project moves
+   to Spring 3.0, it's necessary to stay on JUnit 4.4
+   
+2. Added CGLIB library, a dependency of something (I don't exactly remember
+   what; remove the library and watch it crash if you have a burning desire
+   to find out which thing needed it.)
+   
+3. Added Freemarker 2.3; this templating engine can be used for most of the
+   text generation within the MUD. Spring has great support for Freemarker
+   in web applications. I tried to follow the advice in the Spring reference
+   documentation for non-web applications; it simply would not work.
+   
+   The freemarker.template.Configuration bean returned from Spring would NOT
+   let itself be cast or assigned to a freemarker.template.Configuration field.
+   I tried every dirty trick in the book; annotation injection, xml-configured
+   injection, using reflection to try to get at the target object inside the
+   proxy, casting to Cloneable and using reflection to call the protected
+   Object.clone() method ... absolutely none of it worked.
+   
+   Finally I just copied the Freemarker example from here:
+   
+       http://freemarker.org/docs/pgui_quickstart_all.html  
+   
+   It worked the first time I ran it. So, forget futzing with Spring's non-web
+   support for Freemarker; it was easier to just go directly to Freemarker
+   to get what I needed. If necessary, I'll write my own bean to fire up
+   Freemarker and have Spring provide that instead.
+
+4. Added a Configuration object meant to provide some configuration properties
+   to the server. For now, the only thing it provides is the port on which the
+   server should listen for incoming connections. I chose 7777 for every and
+   no particular reason.
+   
+   This object is instantiated by Spring and populated with nekomud.properties
+   by the configuration given in "nekomud-config.xml". Honestly, the whole
+   "Property Placeholder" thing is a neat trick that Spring pulls off well.
+   
+5. NetworkService, NetworkServiceNioImpl, and Connection are the classes that
+   make up the Java NIO communications infrastructure. In particular, starting
+   NetworkService causes the server to listen for connections and process
+   pending I/O operations on those connections. Spring provides this via the
+   "networkService" bean defined in "nekomud-nio.xml".
+   
+6. ReflectionService and ReflectionServiceImpl are actually leftovers from
+   the dirty tricks (See #3 above) that I was trying to pull. The annoying
+   part about reflection is going down each level; so I wrote a small
+   recursive function to descend the levels with a Java qualification style
+   string with field names.
+   
+   So for example, you can write:
+  
+      Object o = reflectionService.get(myContext, "order.customer.name.first");
+      
+   And this would look for field "order" inside of the myContext object,
+   then it would look for "customer" inside the "order" object, then it
+   would look for "name" inside the "customer" object, then it would look
+   for "first" inside the "name" object. Very handy when you've got a complex
+   object model you want to access via reflection.
+   
+   Alas, as a dirty trick it didn't work; but I didn't have the heart to
+   delete something so useful, even if it's not being used at the moment.
+   The bean to do this is defined in "nekomud-reflect.xml"
+
+7. Added "helloNeko.ftl", the example Freemarker template from the
+   Freemarker documentation, as a way of testing the use of Freemarker
+   in this project.
+
+8. Expanded the JUnit suite to 20 tests. Honestly I think I was slacking a
+   little bit in this section. ConfigurationTest is testing the port getter
+   and setter; which probably wasn't necessary.
+   
+   BufferTest and SelectorTest are merely checking some assumptions about
+   the Java NIO classes; so they are more a test of Java NIO then they are
+   of any of my classes. In any case, they were needed to correctly build
+   the communication infrastructure.
+   
+   NetworkService and ReflectionService don't have full test suites yet; and
+   they probably need to have them. I'll have to add it to my TODO list.
+
+I don't really consider all this functionality "done", but I'd like to check
+in it; many hours worth of changes in my working copy make me nervous. Putting
+them into version control keeps them safe from hard drive crashes and other
+nasty possibilities.
+
+-c15
+Updated from JUnit 3 to JUnit 4.5; not sure why I was hesitant to use JUnit 4
+before now, but it has some really nice benefits over version 3. Also, there
+are very interesting things in the works with Theories and the assertThat()
+syntax created by Joe Walnes. Keep an eye on JUnit.
+
+-c14
+I tagged the project as I left it back in June 2008. I've neglected this
+project for a long time, but now I realized what exactly it is that I want
+to do with it. I won't go into that much right now; I think I'll just get
+back to work on it.
+
+-c13
+Cleaned up the "test" target in build.xml, and also added and modified a few
+targets that are useful:
+
+clean-logs: Deletes and recreates the log/ directory tree
+dist: Modified this target to exclude source code from the generated jar
+dist-all: Added this target to generate both the binary and source jars
+dist-src: Added this target to generate a jar containing the source files
+test: Added a copy statement for the log4j.properties file, so log4j won't
+      complain when the JUnit tests are run from ant.
+
+Now that the ant build file has been whipped into shape, I think I'll work on
+getting an Java NIO communications infrastructure set up.
+
+-c12
+Added a build file for ant (build.xml); this allows the project to be built,
+JUnit test cases run, and a distribution jar created all from the command
+line. I like to work in Eclipse, but others may prefer other IDEs. The ant
+build file is a common denominator for everybody. 
+
+Moved the HelloNekoMUDTest class to the net.sourceforge.nekomud package. For
+some reason, Eclipse was being persnickity about this last checkin.
+
+-c11
+Major changes. After re-familiarizing myself with the project, I find a few
+things that need updates, repairs, and a little reorganization. The details
+are as follows:
+
+* Logging
+
+Using log4j is a sound decision, as it is a very versatile and capable logging
+solution. However there are two problems with the approach:
+
+1. Spring uses commons-logging. Maintaining two logging systems side-by-side
+   seems like a bit of overkill, and I don't know if or how it's possible to
+   tell Spring to use log4j directly instead of commons-logging.
+   
+2. My choice of log4j is my choice, but others who use NekoMUD might prefer a
+   different logging system.
+   
+Fortunately I discovered that I can kill two birds with one stone by using
+slf4j. With jcl-over-slf4j instead of commons-logging, Spring will think it
+is using commons-logging, but the log output will be redirected through slf4j.
+slf4j offers various output options, one of which is log4j. So, by writing to
+the slf4j API, I can have my log4j cake, but others can switch it out by
+replacing slf4j-log4j12-1.5.2.jar with another jar.
+
+Those who really like commons-logging could even remove jcl-over-slf4j, drop
+in slf4j-jcl.jar, and replace the commons-logging jar. This would let Spring
+talk to commons-logging and NekoMUD itself will use it, courtesy of slf4j.
+
+  +--------+
+  | Spring |
+  +--------+
+      |
+      v
++----------------+
+| jcl-over-slf4j |
++----------------+
+      |
+      v
++-----------+        +---------+
+| slf4j-api |<-------| NekoMUD |
++-----------+        +---------+
+      |
+      v
++---------------+
+| slf4j-log4j12 |
++---------------+
+      |
+      v
+  +-------+
+  | log4j |
+  +-------+
+      |
+      v
++-----------+
+| log files |
++-----------+
+
+I updated log4j from 1.2.14 to 1.2.15. commons-logging and its support jars
+have been removed in favor of slf4j.
+
+* Library
+
+In addition to updating the logging libraries, I also updated to the latest
+version of the Spring and spring-test jars. 
+
+* Source
+
+The logging statements were reworked to use slf4j logging instead of log4j.
+The JUnit test class was moved to it's own "test" source folder alongside the
+"src" folder. This will make it easier to create testing builds and to exclude
+testing resources in production deployment.
+
+* Documentation
+
+Updated this journal. Also added a link for slf4j to the TECHREF document.
+
+-c10
+Tagged the project as I left it at the end of January. Has it really been that
+long since I've looked at this? Wow, time does pass so quickly. Completely
+gratuitous, but it does make me feel better.
+
+-r8:9
+Created a method logging Spring bean, and used AOP to apply it to the codebase.
+Provides a small and obvious demonstration how logging can be factored into an
+aspect. Later this same pattern will emerge; logging into the MUD for example,
+instead of having a statement with the login code, there will be another
+logging bean that advises the login bean to create a log entry.
+
+-r7:8
+Added log4j and a configuration file; getting appropriate logging into the
+application early is important for debugging purposes. In a revision or two
+this will be abstracted out to a Spring bean, but for now, it remains embedded
+inside the hello world example.
+ 
+Added TECHREF document for references to technologies used within the project.
+The most important thing is to lower the barrier of entry for working with or
+upon the project. Understanding the foundations upon which the project is
+built works toward that goal.
+
+Added JOURNAL (this file). The human mind works better in a narrative context.
+By describing the thought process that goes into the project, it creates a
+sort of "program" (in the sense of theater or orchestra) by which one can
+follow the show. New developers can read the back story to understand intent;
+again lowering the barrier to entry.
+
+-r0:7
+A skeletal Hello, World! application was created. Eventually, this will be
+placed off to the side in a package/directory apart from the main code. It
+will serve as a sort of museum of templates through which to create
+functionality. The application will evolve from this humble beginning.

@@ -1,0 +1,120 @@
+<!--
+	build.xml
+	Copyright 2008 Patrick Meade
+	
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as
+	published by the Free Software Foundation, either version 3 of the
+	License, or (at your option) any later version.
+	
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+	
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<project name="nekomud" default="dist" basedir=".">
+	<description>
+		NekoMUD
+	</description>
+
+	<!-- set global properties for this build -->
+	<property name="log" location="log"/>
+	<property name="src" location="src"/>
+	<property name="src-test" location="test"/>
+	<property name="build" location="classes"/>
+	<property name="dist" location="dist"/>
+	
+	<!-- paths -->
+	<path id="build.classpath">
+		<fileset dir="lib">
+	    	<include name="**/*.jar"/>
+	    </fileset>
+		<fileset dir="${build}"/>
+	</path>
+
+	<path id="test.classpath">
+		<pathelement path="${build.classpath}"/>
+		<fileset dir="lib">
+	    	<include name="**/*.jar"/>
+		</fileset>
+		<pathelement location="classes"/>
+		<pathelement location="./log4j.properties"/>
+	</path>
+	
+	<!-- targets -->
+	<target name="clean">
+		<!-- delete the directory trees used to store build and distribution files -->
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+
+	<target name="clean-logs">
+		<!-- delete log files -->
+		<delete dir="${log}"/>
+		<mkdir dir="${log}"/>
+	</target>
+	
+	<target name="compile" depends="init">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath refid="build.classpath"/>
+		</javac>
+        <copy todir="${build}">
+            <fileset dir="." includes="log4j.properties"/>
+        </copy>
+	</target>
+
+	<target name="compile-test" depends="compile">
+		<!-- compile the test classes -->
+		<javac srcdir="${src-test}" destdir="${build}">
+			<classpath refid="build.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="dist" depends="clean,compile">
+		<!-- create the distribution directory -->
+		<mkdir dir="${dist}"/>
+		<!-- create the distribution jar -->
+		<jar jarfile="${dist}/nekomud-${DSTAMP}.jar">
+			<!-- include all binary class files -->
+		    <fileset dir="${build}" excludes="log4j.properties"/>
+		</jar>
+	</target>
+
+	<target name="dist-all" depends="dist,dist-src"/>
+	
+	<target name="dist-src" depends="clean,compile">
+		<!-- create the distribution directory -->
+		<mkdir dir="${dist}"/>
+		<!-- create the distribution jar -->
+		<jar jarfile="${dist}/nekomud-${DSTAMP}-src.jar">
+			<!-- include all source code -->
+		    <fileset dir="${src}"/>
+		</jar>
+	</target>
+	
+	<target name="init">
+		<!-- create time stamp -->
+		<tstamp/>
+		<!-- create directory trees for build and distribution -->
+		<mkdir dir="${build}"/>
+	</target>
+	
+	<target name="test" depends="compile-test">
+		<!-- run all of the JUnit tests defined -->
+		<junit>
+			<classpath refid="test.classpath"/>
+			<formatter type="plain" usefile="false"/>
+			<batchtest fork="yes">
+				<fileset dir="${src-test}">
+					<include name="**/*Test*.java"/>
+					<exclude name="**/AllTests.java"/>
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+</project>
