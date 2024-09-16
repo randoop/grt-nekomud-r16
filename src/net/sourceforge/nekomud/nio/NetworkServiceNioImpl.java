@@ -108,10 +108,10 @@ class SelectionThread implements Runnable
 	public SelectionThread(Selector selector, Collection<Connection> connections) {
 		this.connections = connections;
 		this.selector = selector;
+        this.finished = false;
 	}
 	
 	public void run() {
-		finished = false;
 		while(finished == false) {
 			// in case of IOException; seek medical attention
 			try {
@@ -174,9 +174,9 @@ class SelectionThread implements Runnable
 	
 	private Collection<Connection> connections;
 
-	private boolean finished;
+	private volatile boolean finished;
 	
-	private boolean stopped;
+	private volatile boolean stopped;
 
 	private Selector selector;
 }
