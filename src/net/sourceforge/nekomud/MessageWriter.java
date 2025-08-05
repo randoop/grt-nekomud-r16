@@ -18,6 +18,8 @@
 
 package net.sourceforge.nekomud;
 
+import org.checkerframework.dataflow.qual.Impure;
+import org.checkerframework.dataflow.qual.Pure;
 import java.io.PrintWriter;
 
 /**
@@ -30,11 +32,13 @@ public interface MessageWriter
 	 * Obtain the message that the MessageWriter object will write
 	 * @return the message that the MessageWriter object will write
 	 */
+	@Pure
 	abstract public String getMessage();
 
 	/**
 	 * Write out a message to the provided PrintWriter obejct.
 	 * @param printWriter PrintWriter to which the message should be written
 	 */
+	@Impure
 	abstract public void writeMessage(PrintWriter printWriter);
 }

@@ -18,6 +18,7 @@
 
 package net.sourceforge.nekomud;
 
+import org.checkerframework.dataflow.qual.Impure;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -46,6 +47,7 @@ public class HelloNekoMUD
 	 * to the standard output and then terminates.
 	 * @param args command-line arguments; ignored
 	 */
+	@Impure
 	public static void main(String[] args)
 	{
 		try {

@@ -17,8 +17,10 @@
  */
 
 package net.sourceforge.nekomud.service;
+import org.checkerframework.dataflow.qual.Impure;
 
 public interface ReflectionService
 {
+	@Impure
 	public Object get(Object o, String path);
 }

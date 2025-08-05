@@ -18,6 +18,9 @@
 
 package net.sourceforge.nekomud.nio;
 
+import org.checkerframework.dataflow.qual.Pure;
+import org.checkerframework.dataflow.qual.Impure;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -42,14 +45,17 @@ public class NetworkServiceNioImpl implements NetworkService
 {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	@Impure
 	public NetworkServiceNioImpl() {
 		connections = Collections.synchronizedList(new ArrayList<Connection>());
 	}
 
+	@Pure
 	public List<Connection> getConnections() {
 		return connections;
 	}
 	
+	@Impure
 	public void start() {
 		// in case of IOException; seek medical attention
 		try {
@@ -74,6 +80,7 @@ public class NetworkServiceNioImpl implements NetworkService
 		}
 	}
 	
+	@Impure
 	public void stop() {
 		selectionThread.stop();
 		while(selectionThread.hasStopped() == false) {
@@ -95,6 +102,7 @@ public class NetworkServiceNioImpl implements NetworkService
 	
 	private ServerSocketChannel serverSocketChannel;
 
+	@Impure
 	public void setConfiguration(Configuration configuration) { 
 		this.configuration = configuration;
 	}
@@ -105,11 +113,13 @@ class SelectionThread implements Runnable
 {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@SideEffectFree
 	public SelectionThread(Selector selector, Collection<Connection> connections) {
 		this.connections = connections;
 		this.selector = selector;
 	}
 	
+	@Impure
 	public void run() {
 		finished = false;
 		while(finished == false) {
@@ -163,11 +173,13 @@ class SelectionThread implements Runnable
 		stopped = true;
 	}
 
+	@Impure
 	public void stop() {
 		finished = true;
 		selector.wakeup();
 	}
 	
+	@Pure
 	public boolean hasStopped() {
 		return stopped;
 	}

@@ -18,12 +18,14 @@
 
 package net.sourceforge.nekomud.reflect;
 
+import org.checkerframework.dataflow.qual.Impure;
 import java.lang.reflect.Field;
 
 import net.sourceforge.nekomud.service.ReflectionService;
 
 public class ReflectionServiceImpl implements ReflectionService
 {
+	@Impure
 	@Override
 	public Object get(Object o, String path)
 	{

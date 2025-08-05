@@ -18,6 +18,9 @@
 
 package net.sourceforge.nekomud;
 
+import org.checkerframework.dataflow.qual.Impure;
+import org.checkerframework.dataflow.qual.Pure;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 import java.io.PrintWriter;
 
 /**
@@ -27,19 +30,23 @@ import java.io.PrintWriter;
  */
 public class ConfigurableMessageWriter implements MessageWriter
 {
+	@SideEffectFree
 	public ConfigurableMessageWriter(String message) {
 		this.message = message;
 	}
 
+	@Impure
 	public void writeMessage(PrintWriter printWriter)
 	{
 		printWriter.print(message);
 	}
 	
+	@Pure
 	public String getMessage() {
 		return message;
 	}
 	
+	@Impure
 	public void setMessage(String message) {
 		this.message = message;
 	}

@@ -18,13 +18,18 @@
 
 package net.sourceforge.nekomud.service;
 
+import org.checkerframework.dataflow.qual.Impure;
+import org.checkerframework.dataflow.qual.Pure;
 import java.util.List;
 
 import net.sourceforge.nekomud.nio.Connection;
 
 public interface NetworkService
 {
+	@Pure
 	public List<Connection> getConnections();
+	@Impure
 	public void start();
+	@Impure
 	public void stop();
 }

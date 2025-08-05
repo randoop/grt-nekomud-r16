@@ -17,6 +17,8 @@
  */
 
 package net.sourceforge.nekomud;
+import org.checkerframework.dataflow.qual.Impure;
+import org.checkerframework.dataflow.qual.Pure;
 
 /**
  * Configuration provides configuration information for NekoMUD.
@@ -24,10 +26,12 @@ package net.sourceforge.nekomud;
  */
 public class Configuration
 {
+	@Pure
 	public int getPort() {
 		return port;
 	}
 
+	@Impure
 	public void setPort(int port) {
 		this.port = port;
 	}

@@ -60,7 +60,11 @@
 	<target name="compile" depends="init">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}">
-			<classpath refid="build.classpath"/>
+			<classpath>
+				<path refid="build.classpath"/>
+				<pathelement
+						location="../../../scripts/build/checker-framework/checker/dist/checker-qual.jar"/>
+			</classpath>
 		</javac>
         <copy todir="${build}">
             <fileset dir="." includes="log4j.properties"/>

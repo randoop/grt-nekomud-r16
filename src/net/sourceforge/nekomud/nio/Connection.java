@@ -18,6 +18,9 @@
 
 package net.sourceforge.nekomud.nio;
 
+import org.checkerframework.dataflow.qual.Pure;
+import org.checkerframework.dataflow.qual.Impure;
+import org.checkerframework.dataflow.qual.SideEffectFree;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -37,14 +40,17 @@ public class Connection
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	@SideEffectFree
 	public Connection(SocketChannel channel) {
 		this.channel = channel;
 	}
 
+	@Pure
 	public SocketChannel getChannel() {
 		return channel;
 	}
 	
+	@Impure
 	public void handleRead(SelectionKey key) {
 		try {
 			int bytesRead = -1;
@@ -70,6 +76,7 @@ public class Connection
 		}
 	}
 	
+	@Impure
 	public void handleWrite(SelectionKey key) {
 		setWrite(key, false);
 		try {
@@ -85,6 +92,7 @@ public class Connection
 		}
 	}
 	
+	@Impure
 	private void setWrite(SelectionKey key, boolean newWriteState) {
 		int interestOps = key.interestOps();
 		if(newWriteState == true) {
@@ -102,6 +110,7 @@ public class Connection
 		}
 	}
 	
+	@Pure
 	private String toHex(byte b) {
 		final String HEX = "0123456789ABCDEF";
 		int i = (int)b;

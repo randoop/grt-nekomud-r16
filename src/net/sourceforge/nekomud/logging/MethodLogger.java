@@ -18,6 +18,7 @@
 
 package net.sourceforge.nekomud.logging;
 
+import org.checkerframework.dataflow.qual.Impure;
 import org.aspectj.lang.JoinPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ public class MethodLogger
 	 * @param joinPoint JoinPoint object representing the method that is about
 	 *                  to be called.
 	 */
+	@Impure
 	public void logMethodEntry(JoinPoint joinPoint)
 	{
 		String className = joinPoint.getTarget().getClass().getName();
@@ -67,6 +69,7 @@ public class MethodLogger
 	 *                  finished executing. 
 	 * @param result the result returning from the method call
 	 */
+	@Impure
 	public void logMethodExit(JoinPoint joinPoint, Object result)
     {
 		String className = joinPoint.getTarget().getClass().getName();
